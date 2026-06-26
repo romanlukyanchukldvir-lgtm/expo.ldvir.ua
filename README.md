@@ -58,13 +58,26 @@ NEXT_PUBLIC_GA_ID=
 Серверні змінні CRM:
 
 ```env
-CRM_API_URL=
+CRM_API_URL=https://openapi.keycrm.app/v1
 CRM_API_TOKEN=
 CRM_SOURCE=landing_page_form
 CRM_EVENT=ldvir_tools_expo_2026
+KEYCRM_PIPELINE_ID=
+KEYCRM_SOURCE_ID=
+KEYCRM_STATUS_ID=
+KEYCRM_MANAGER_ID=
 ```
 
 `CRM_API_TOKEN` не має починатися з `NEXT_PUBLIC_`, бо він використовується тільки на сервері.
+
+Для KeyCRM:
+
+- `CRM_API_URL` можна залишити `https://openapi.keycrm.app/v1`;
+- `CRM_API_TOKEN` — API-ключ KeyCRM;
+- `KEYCRM_PIPELINE_ID` — ID воронки, куди створювати лід;
+- `KEYCRM_SOURCE_ID` — ID джерела, наприклад джерело для `Landing page / Facebook Ads`;
+- `KEYCRM_STATUS_ID` — ID статусу **“Зареєстрований”**. Якщо не вказати, KeyCRM поставить стандартний початковий статус воронки;
+- `KEYCRM_MANAGER_ID` — optional, ID відповідального менеджера.
 
 ## Telegram CTA
 
@@ -148,7 +161,30 @@ Route формує payload:
 lib/crm.ts
 ```
 
-Щоб адаптувати інтеграцію під KeyCRM або іншу CRM, змініть `createCrmLead()` і формат `crmPayload`. Коментар до ліда вже містить подію, інтерес, UTM, fbclid, сторінку та примітку **“Резервна реєстрація без Telegram.”**
+Інтеграція налаштована під KeyCRM OpenAPI. `/api/register` створює картку у воронці через:
+
+```text
+POST https://openapi.keycrm.app/v1/pipelines/cards
+```
+
+У KeyCRM передаються:
+
+- `title` — `Виставка інструментів 2026 — Імʼя`;
+- `contact.full_name` — імʼя;
+- `contact.phone` — нормалізований телефон `+380XXXXXXXXX`;
+- `pipeline_id` — з `KEYCRM_PIPELINE_ID`;
+- `source_id` — з `KEYCRM_SOURCE_ID`;
+- `manager_id` — з `KEYCRM_MANAGER_ID`, якщо заданий;
+- `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`;
+- `manager_comment` — подія, статус, інтерес, UTM, `fbclid`, сторінка та примітка **“Резервна реєстрація без Telegram.”**
+
+Якщо заданий `KEYCRM_STATUS_ID`, після створення картки сайт робить:
+
+```text
+PUT https://openapi.keycrm.app/v1/pipelines/cards/{cardId}
+```
+
+і переводить картку у статус із цим ID.
 
 ## Meta Pixel і GA4
 
