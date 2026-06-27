@@ -14,6 +14,7 @@ export function getPublicConfig() {
     metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID ?? DEFAULT_META_PIXEL_ID,
     googleMapsUrl: process.env.NEXT_PUBLIC_GOOGLE_MAPS_URL || DEFAULT_GOOGLE_MAPS_URL,
     gaId: process.env.NEXT_PUBLIC_GA_ID || "",
+    turnstileSiteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
   };
 }
 
@@ -28,5 +29,6 @@ export function getServerConfig() {
     keycrmSourceId: Number(process.env.KEYCRM_SOURCE_ID || ""),
     keycrmStatusId: Number(process.env.KEYCRM_STATUS_ID || ""),
     keycrmManagerId: Number(process.env.KEYCRM_MANAGER_ID || ""),
+    turnstileSecretKey: process.env.TURNSTILE_SECRET_KEY || "",
   };
 }

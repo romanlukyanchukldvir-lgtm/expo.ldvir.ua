@@ -1,5 +1,7 @@
 import { getServerConfig } from "@/lib/config";
 
+const CARD_DEDUPE_PAGE_LIMIT = 4;
+
 export type CrmLeadPayload = {
   source: string;
   event: string;
@@ -19,21 +21,9 @@ export type CrmLeadPayload = {
 };
 
 function buildLeadComment(payload: CrmLeadPayload) {
-  return [
-    "Подія: Виставка інструментів 2026",
-    `Статус: ${payload.status}`,
-    `Джерело: Landing page / Facebook Ads`,
-    `Телефон на сайті: ${payload.phone_display}`,
-    `Інтерес клієнта: ${payload.interest || "не вказано"}`,
-    `UTM source: ${payload.utm_source || "-"}`,
-    `UTM medium: ${payload.utm_medium || "-"}`,
-    `UTM campaign: ${payload.utm_campaign || "-"}`,
-    `UTM content: ${payload.utm_content || "-"}`,
-    `UTM term: ${payload.utm_term || "-"}`,
-    `fbclid: ${payload.fbclid || "-"}`,
-    `Сторінка: ${payload.page_url}`,
-    "Примітка: Резервна реєстрація без Telegram.",
-  ].join("\n");
+  return [`Інтерес: ${payload.interest || "не вказано"}`, "Резервна реєстрація без Telegram."].join(
+    "\n",
+  );
 }
 
 function asKeycrmNumber(value: number) {
@@ -64,6 +54,92 @@ async function readErrorResponse(response: Response) {
   return response.text().catch(() => "");
 }
 
+function normalizeComparablePhone(value: unknown) {
+  return typeof value === "string" ? value.replace(/\D/g, "") : "";
+}
+
+function hasDataItems(value: unknown) {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "data" in value &&
+      Array.isArray((value as { data?: unknown }).data) &&
+      (value as { data: unknown[] }).data.length > 0,
+  );
+}
+
+async function fetchKeycrmJson(path: string, searchParams: Record<string, string>) {
+  const config = getServerConfig();
+  const url = new URL(buildKeycrmUrl(config.crmApiUrl, path));
+
+  Object.entries(searchParams).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    }
+  });
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${config.crmApiToken}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const text = await readErrorResponse(response);
+    throw new Error(`KeyCRM lookup failed with ${response.status}: ${text}`);
+  }
+
+  return response.json().catch(() => ({}));
+}
+
+async function keycrmBuyerExistsByPhone(phone: string) {
+  const result = await fetchKeycrmJson("/buyer", {
+    limit: "1",
+    "filter[buyer_phone]": phone,
+  });
+
+  return hasDataItems(result);
+}
+
+async function keycrmPipelineCardExistsByPhone(phone: string) {
+  const config = getServerConfig();
+  const comparablePhone = normalizeComparablePhone(phone);
+
+  for (let page = 1; page <= CARD_DEDUPE_PAGE_LIMIT; page += 1) {
+    const result = (await fetchKeycrmJson("/pipelines/cards", {
+      include: "contact",
+      limit: "50",
+      page: String(page),
+      "filter[pipeline_id]": asKeycrmNumber(config.keycrmPipelineId)?.toString() || "",
+    })) as { data?: Array<{ contact?: { phone?: string | null } }>; next_page_url?: string | null };
+
+    const hasMatchingPhone = result.data?.some(
+      (card) => normalizeComparablePhone(card.contact?.phone) === comparablePhone,
+    );
+
+    if (hasMatchingPhone) {
+      return true;
+    }
+
+    if (!result.next_page_url) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+async function keycrmLeadOrBuyerExistsByPhone(phone: string) {
+  if (await keycrmBuyerExistsByPhone(phone)) {
+    return true;
+  }
+
+  return keycrmPipelineCardExistsByPhone(phone);
+}
+
 async function updateKeycrmCardStatus(cardId: number, statusId: number) {
   const config = getServerConfig();
   const response = await fetch(buildKeycrmUrl(config.crmApiUrl, `/pipelines/cards/${cardId}`), {
@@ -88,6 +164,10 @@ export async function createCrmLead(payload: CrmLeadPayload) {
 
   if (!config.crmApiUrl || !config.crmApiToken) {
     throw new Error("CRM_API_URL or CRM_API_TOKEN is not configured");
+  }
+
+  if (await keycrmLeadOrBuyerExistsByPhone(payload.phone)) {
+    return { skipped: true, reason: "duplicate_phone" };
   }
 
   const crmPayload = stripEmptyValues({
@@ -131,5 +211,5 @@ export async function createCrmLead(payload: CrmLeadPayload) {
     await updateKeycrmCardStatus(cardId, statusId);
   }
 
-  return result;
+  return { ...result, skipped: false };
 }

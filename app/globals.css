@@ -702,6 +702,14 @@ img {
   font-weight: 800;
 }
 
+.lead-form .spam-field {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .lead-form input,
 .lead-form textarea {
   width: 100%;
@@ -738,6 +746,10 @@ img {
 
 .form-submit {
   width: 100%;
+}
+
+.turnstile-wrap {
+  min-height: 65px;
 }
 
 .location-layout {

@@ -53,6 +53,7 @@ NEXT_PUBLIC_MANAGER_PHONE=+380679979765
 NEXT_PUBLIC_META_PIXEL_ID=1362943694602745
 NEXT_PUBLIC_GOOGLE_MAPS_URL=
 NEXT_PUBLIC_GA_ID=
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
 ```
 
 Серверні змінні CRM:
@@ -66,6 +67,7 @@ KEYCRM_PIPELINE_ID=
 KEYCRM_SOURCE_ID=
 KEYCRM_STATUS_ID=
 KEYCRM_MANAGER_ID=
+TURNSTILE_SECRET_KEY=
 ```
 
 `CRM_API_TOKEN` не має починатися з `NEXT_PUBLIC_`, бо він використовується тільки на сервері.
@@ -125,6 +127,30 @@ CTA повторюється в hero, реєстраційному блоці т
 
 Після успішного створення ліда в CRM користувач бачить success-повідомлення, а Meta Pixel отримує custom event `LandingFormSubmit`. Якщо CRM не налаштована або повертає помилку, показується error-повідомлення і `LandingFormSubmit` не відправляється.
 
+## Антиспам форми
+
+Перед створенням ліда в KeyCRM `/api/register` перевіряє:
+
+- приховане honeypot-поле `website`;
+- мінімальний час заповнення форми;
+- best-effort rate limit по IP;
+- повторну відправку того самого телефону протягом короткого часу;
+- наявність такого телефону в KeyCRM перед створенням нового ліда;
+- Cloudflare Turnstile, якщо заданий `TURNSTILE_SECRET_KEY`.
+
+Cloudflare Turnstile вмикається двома env-змінними:
+
+```env
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=
+```
+
+Якщо Turnstile-ключі не задані, сайт не ламається: працюють honeypot, перевірка часу та базові серверні ліміти. Якщо `TURNSTILE_SECRET_KEY` заданий, сервер не відправить заявку в KeyCRM без валідного Turnstile token.
+
+Turnstile keys створюються в Cloudflare Dashboard для домену `expo.ldvir.ua`.
+
+Якщо такий телефон уже є в KeyCRM, сайт не створює дубль. Користувач бачить success-повідомлення, але Meta Pixel `LandingFormSubmit` не відправляється, бо новий лід у CRM не створювався.
+
 ## CRM API
 
 Frontend відправляє POST тільки на локальний route:
@@ -176,7 +202,7 @@ POST https://openapi.keycrm.app/v1/pipelines/cards
 - `source_id` — з `KEYCRM_SOURCE_ID`;
 - `manager_id` — з `KEYCRM_MANAGER_ID`, якщо заданий;
 - `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`;
-- `manager_comment` — подія, статус, інтерес, UTM, `fbclid`, сторінка та примітка **“Резервна реєстрація без Telegram.”**
+- `manager_comment` — тільки інтерес клієнта та примітка **“Резервна реєстрація без Telegram.”**
 
 Якщо заданий `KEYCRM_STATUS_ID`, після створення картки сайт робить:
 
