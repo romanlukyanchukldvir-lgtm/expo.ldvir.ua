@@ -58,16 +58,6 @@ function normalizeComparablePhone(value: unknown) {
   return typeof value === "string" ? value.replace(/\D/g, "") : "";
 }
 
-function hasDataItems(value: unknown) {
-  return Boolean(
-    value &&
-      typeof value === "object" &&
-      "data" in value &&
-      Array.isArray((value as { data?: unknown }).data) &&
-      (value as { data: unknown[] }).data.length > 0,
-  );
-}
-
 async function fetchKeycrmJson(path: string, searchParams: Record<string, string>) {
   const config = getServerConfig();
   const url = new URL(buildKeycrmUrl(config.crmApiUrl, path));
@@ -93,15 +83,6 @@ async function fetchKeycrmJson(path: string, searchParams: Record<string, string
   }
 
   return response.json().catch(() => ({}));
-}
-
-async function keycrmBuyerExistsByPhone(phone: string) {
-  const result = await fetchKeycrmJson("/buyer", {
-    limit: "1",
-    "filter[buyer_phone]": phone,
-  });
-
-  return hasDataItems(result);
 }
 
 async function keycrmPipelineCardExistsByPhone(phone: string) {
@@ -132,14 +113,6 @@ async function keycrmPipelineCardExistsByPhone(phone: string) {
   return false;
 }
 
-async function keycrmLeadOrBuyerExistsByPhone(phone: string) {
-  if (await keycrmBuyerExistsByPhone(phone)) {
-    return true;
-  }
-
-  return keycrmPipelineCardExistsByPhone(phone);
-}
-
 async function updateKeycrmCardStatus(cardId: number, statusId: number) {
   const config = getServerConfig();
   const response = await fetch(buildKeycrmUrl(config.crmApiUrl, `/pipelines/cards/${cardId}`), {
@@ -166,8 +139,8 @@ export async function createCrmLead(payload: CrmLeadPayload) {
     throw new Error("CRM_API_URL or CRM_API_TOKEN is not configured");
   }
 
-  if (await keycrmLeadOrBuyerExistsByPhone(payload.phone)) {
-    return { skipped: true, reason: "duplicate_phone" };
+  if (await keycrmPipelineCardExistsByPhone(payload.phone)) {
+    return { skipped: true, reason: "duplicate_phone_in_pipeline" };
   }
 
   const crmPayload = stripEmptyValues({

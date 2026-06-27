@@ -670,6 +670,7 @@ img {
 
 .registration-main,
 .form-panel {
+  min-width: 0;
   padding: clamp(22px, 3vw, 32px);
 }
 
@@ -703,11 +704,13 @@ img {
 }
 
 .lead-form .spam-field {
-  position: absolute;
-  left: -10000px;
+  position: fixed;
+  inset: auto auto 0 0;
   width: 1px;
   height: 1px;
   overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
 }
 
 .lead-form input,
@@ -842,9 +845,20 @@ img {
 }
 
 @media (max-width: 700px) {
+  .container {
+    width: min(420px, calc(100% - 24px));
+  }
+
   .site-header {
     position: absolute;
-    padding: 8px 16px;
+    gap: 12px;
+    padding: 8px 12px;
+  }
+
+  .header-logo {
+    width: 118px;
+    min-width: 108px;
+    height: 38px;
   }
 
   .header-logo img {
@@ -865,29 +879,61 @@ img {
 
   .hero {
     min-height: auto;
-    padding: 80px 0 36px;
+    align-items: flex-start;
+    padding: 78px 0 34px;
     background-position: center top;
   }
 
+  .hero-overlay {
+    background:
+      linear-gradient(90deg, rgba(10, 10, 10, 0.96) 0%, rgba(10, 10, 10, 0.78) 58%, rgba(10, 10, 10, 0.5) 100%),
+      linear-gradient(0deg, rgba(16, 16, 16, 0.9), rgba(16, 16, 16, 0.34));
+  }
+
   .hero-content {
-    padding-left: 14px;
+    width: 100%;
+    max-width: 100%;
+    padding-left: 12px;
   }
 
   .hero-logo {
-    margin-bottom: 4px;
+    margin-bottom: 12px;
+  }
+
+  .hero-logo img {
+    width: min(190px, 52vw);
+  }
+
+  .event-pill {
+    min-height: 30px;
+    padding: 6px 9px;
+    font-size: 0.68rem;
+    line-height: 1.2;
   }
 
   .hero h1 {
-    margin-top: 14px;
-    font-size: clamp(2.35rem, 13.5vw, 4rem);
+    max-width: 100%;
+    margin: 18px 0 8px;
+    font-size: clamp(2.15rem, 10.5vw, 2.9rem);
+    line-height: 0.98;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1.35rem, 6vw, 1.72rem);
+    line-height: 1.08;
   }
 
   .hero-copy {
     margin-top: 12px;
+    font-size: 1rem;
+    line-height: 1.45;
   }
 
   .hero-facts {
-    margin: 18px 0;
+    gap: 9px;
+    margin: 18px 0 16px;
   }
 
   .hero-facts,
@@ -901,13 +947,58 @@ img {
     width: 100%;
   }
 
+  .hero-facts span {
+    min-height: 42px;
+    padding: 9px 11px;
+    font-size: 0.92rem;
+    line-height: 1.2;
+  }
+
+  .action-row-hero {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .action-row-hero .button {
+    min-height: 46px;
+    padding: 12px 10px;
+    font-size: 0.86rem;
+  }
+
+  .action-row-hero .button-primary,
+  .action-row-hero .button-muted {
+    grid-column: 1 / -1;
+    min-height: 52px;
+    font-size: 1rem;
+  }
+
+  .action-row-hero .button-muted {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .action-row-hero .button-outline,
+  .action-row-hero .button-secondary {
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(16, 16, 16, 0.55);
+    box-shadow: none;
+  }
+
+  .hero .cta-note,
+  .hero .call-note {
+    display: none;
+  }
+
   .event-strip-grid {
-    width: 100%;
-    grid-template-columns: 1fr 1fr;
+    width: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     min-height: auto;
+    margin-inline: auto;
   }
 
   .event-strip-item {
+    min-width: 0;
     padding: 16px 14px;
   }
 
@@ -917,6 +1008,11 @@ img {
 
   .section {
     padding: 44px 0;
+  }
+
+  .registration-main,
+  .form-panel {
+    padding: 16px;
   }
 
   .section-heading {
