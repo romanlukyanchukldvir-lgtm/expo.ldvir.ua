@@ -128,6 +128,29 @@ export default function Home() {
           <p className="event-pill">15 липня 2026 • Хмельницький</p>
           <h1>ВИСТАВКА ІНСТРУМЕНТІВ</h1>
           <p className="hero-subtitle">Тестуй. Порівнюй. Обирай краще.</p>
+          <div
+            className="hero-brand-marquee"
+            aria-label={`Бренди на виставці: ${brands.map((brand) => brand.name).join(", ")}`}
+          >
+            <div className="hero-brand-track">
+              <div className="hero-brand-set">
+                {brands.map((brand) => (
+                  <span className="hero-brand-logo-card" key={brand.name}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={brand.logo} alt={brand.name} />
+                  </span>
+                ))}
+              </div>
+              <div className="hero-brand-set" aria-hidden="true">
+                {brands.map((brand) => (
+                  <span className="hero-brand-logo-card" key={`repeat-${brand.name}`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={brand.logo} alt="" />
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
           <p className="hero-copy">
             Інструмент, демонстрації, будівельні рішення, камінь, каміни та мангали — все на одній
             локації біля LDVIR.UA.

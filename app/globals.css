@@ -178,9 +178,62 @@ img {
   font-weight: 900;
 }
 
+.hero-brand-marquee {
+  max-width: min(920px, 100%);
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(253, 196, 1, 0.34);
+  border-radius: 6px;
+  background:
+    linear-gradient(90deg, rgba(253, 196, 1, 0.13), rgba(255, 106, 0, 0.08)),
+    rgba(16, 16, 16, 0.72);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+}
+
+.hero-brand-track {
+  display: flex;
+  width: max-content;
+  animation: hero-brand-scroll 30s linear infinite;
+}
+
+.hero-brand-marquee:hover .hero-brand-track {
+  animation-play-state: paused;
+}
+
+.hero-brand-set {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+  min-width: max-content;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+
+.hero-brand-logo-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(100px, 10vw, 136px);
+  height: clamp(38px, 4vw, 50px);
+  padding: 6px 10px;
+  border: 1px solid rgba(253, 196, 1, 0.24);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: inset 0 0 0 1px rgba(16, 16, 16, 0.04);
+}
+
+.hero-brand-logo-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: saturate(1.06) contrast(1.04);
+}
+
 .hero-copy {
   max-width: 720px;
-  margin: 16px 0 0;
+  margin: 14px 0 0;
   color: rgba(255, 255, 255, 0.86);
   font-size: clamp(1rem, 2vw, 1.2rem);
   line-height: 1.55;
@@ -684,8 +737,26 @@ img {
 }
 
 .registration-main h2 {
-  font-size: clamp(2.35rem, 4.35vw, 4.35rem);
-  overflow-wrap: anywhere;
+  font-size: clamp(2.05rem, 3vw, 2.85rem);
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
+}
+
+@keyframes hero-brand-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-brand-track {
+    animation: none;
+  }
 }
 
 .form-panel h3 {
@@ -930,6 +1001,26 @@ img {
     line-height: 1.08;
   }
 
+  .hero-brand-marquee {
+    margin-top: 10px;
+    border-radius: 5px;
+  }
+
+  .hero-brand-track {
+    animation-duration: 18s;
+  }
+
+  .hero-brand-set {
+    gap: 8px;
+    padding: 7px 8px;
+  }
+
+  .hero-brand-logo-card {
+    width: 104px;
+    height: 38px;
+    padding: 5px 8px;
+  }
+
   .hero-copy {
     margin-top: 12px;
     font-size: 1rem;
@@ -1018,6 +1109,11 @@ img {
   .registration-main,
   .form-panel {
     padding: 16px;
+  }
+
+  .registration-main h2 {
+    font-size: clamp(1.55rem, 7.2vw, 2rem);
+    line-height: 1.06;
   }
 
   .section-heading {

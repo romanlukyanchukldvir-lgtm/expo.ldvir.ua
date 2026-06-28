@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Script from "next/script";
 import { getPublicConfig } from "@/lib/config";
-import { formatUAPhoneInput, normalizeUAPhone } from "@/lib/phone";
+import { formatUAPhoneDisplay, formatUAPhoneInput, normalizeUAPhone } from "@/lib/phone";
 import { trackPixel } from "@/components/PixelEvents";
 
 const UTM_KEYS = [
@@ -74,7 +74,7 @@ function readFormString(value: FormDataEntryValue | null): string {
 
 export function LeadForm() {
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("+38 (0");
+  const [phone, setPhone] = useState("");
   const [interest, setInterest] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [formError, setFormError] = useState("");
@@ -109,6 +109,30 @@ export function LeadForm() {
     setTurnstileToken("");
   }
 
+  function handlePhoneChange(value: string) {
+    setPhone(formatUAPhoneInput(value));
+
+    if (phoneError) {
+      setPhoneError("");
+    }
+  }
+
+  function handlePhoneBlur() {
+    if (!phone) {
+      setPhoneError("");
+      return;
+    }
+
+    const normalizedPhone = normalizeUAPhone(phone);
+
+    if (!normalizedPhone) {
+      setPhoneError("Введіть коректний український номер телефону");
+      return;
+    }
+
+    setPhone(formatUAPhoneDisplay(normalizedPhone));
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -127,6 +151,8 @@ export function LeadForm() {
       return;
     }
 
+    const phoneDisplay = formatUAPhoneDisplay(normalizedPhone);
+
     if (config.turnstileSiteKey && !turnstileResponse) {
       setFormError("Підтвердіть, що ви не робот.");
       setStatus("error");
@@ -144,7 +170,7 @@ export function LeadForm() {
         body: JSON.stringify({
           name: name.trim(),
           phone: normalizedPhone,
-          phone_display: phone,
+          phone_display: phoneDisplay,
           interest: interest.trim(),
           page_url: config.siteUrl,
           website: readFormString(formData.get("website")),
@@ -162,7 +188,7 @@ export function LeadForm() {
 
       setStatus("success");
       setName("");
-      setPhone("+38 (0");
+      setPhone("");
       setInterest("");
       setFormStartedAt(Date.now());
       resetTurnstile();
@@ -209,12 +235,8 @@ export function LeadForm() {
         <input
           name="phone"
           value={phone}
-          onChange={(event) => setPhone(formatUAPhoneInput(event.target.value))}
-          onBlur={() => {
-            if (phone && !normalizeUAPhone(phone)) {
-              setPhoneError("Введіть коректний український номер телефону");
-            }
-          }}
+          onChange={(event) => handlePhoneChange(event.target.value)}
+          onBlur={handlePhoneBlur}
           placeholder="+38 (067) 123-45-67"
           required
           inputMode="tel"
