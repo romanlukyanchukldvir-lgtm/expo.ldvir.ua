@@ -38,8 +38,8 @@ export const metadata: Metadata = {
     images: [ogImage],
   },
   icons: {
-    icon: "/logo-ldvir.png",
-    shortcut: "/logo-ldvir.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
     apple: "/logo-ldvir.png",
   },
 };
