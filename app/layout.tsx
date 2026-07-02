@@ -7,16 +7,18 @@ import { PixelEvents } from "@/components/PixelEvents";
 const publicConfig = getPublicConfig();
 const siteUrl = publicConfig.siteUrl;
 const ogImage = `${siteUrl}/og-image.jpg`;
+const seoTitle =
+  "Виставка інструментів LDVIR.UA 2026 — демонстрації, партнери та автоекспозиція Toyota";
+const seoDescription =
+  "15 липня 2026 у Хмельницькому біля LDVIR.UA — виставка інструментів, демонстрації брендів, будівельні рішення, партнери та автомобілі Toyota від ТОЙОТА ЦЕНТР ХМЕЛЬНИЦЬКИЙ “ГРАНД МОТОР”.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Виставка інструментів LDVIR.UA — 15 липня 2026, Хмельницький",
-  description:
-    "15 липня 2026 у Хмельницькому відбудеться виставка інструментів LDVIR.UA. DeWalt, Milwaukee, Makita, Metabo, Maruyama, DISTAR, Paton, GTM.",
+  title: seoTitle,
+  description: seoDescription,
   openGraph: {
-    title: "Виставка інструментів LDVIR.UA",
-    description:
-      "15 липня 2026, Хмельницький, вул. Вінницька 1/9. Тестуй. Порівнюй. Обирай краще.",
+    title: seoTitle,
+    description: seoDescription,
     url: siteUrl,
     siteName: "LDVIR.UA",
     images: [
@@ -32,9 +34,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Виставка інструментів LDVIR.UA",
-    description:
-      "15 липня 2026, Хмельницький, вул. Вінницька 1/9. Тестуй. Порівнюй. Обирай краще.",
+    title: seoTitle,
+    description: seoDescription,
     images: [ogImage],
   },
   icons: {

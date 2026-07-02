@@ -13,11 +13,18 @@ const brands = [
   { name: "GTM", logo: "/brands/gtm.svg" },
 ];
 
-const partners = [
-  ["West Fireplace", "каміни та мангали"],
-  ["БудШок", "Sika, будівельні суміші"],
-  ["Bologiv", "професійна обробка каменю"],
-  ["Подільський камінь", "натуральний камінь"],
+const toyotaPartnerName = 'ТОЙОТА ЦЕНТР ХМЕЛЬНИЦЬКИЙ “ГРАНД МОТОР”';
+
+type Partner = {
+  name: string;
+  category: string;
+};
+
+const partners: Partner[] = [
+  { name: "West Fireplace", category: "каміни та мангали" },
+  { name: "БудШок", category: "Sika, будівельні суміші" },
+  { name: "Bologiv", category: "професійна обробка каменю" },
+  { name: "Подільський камінь", category: "натуральний камінь" },
 ];
 
 const benefits = [
@@ -27,6 +34,25 @@ const benefits = [
   [
     "Додаткові експозиції",
     "Каміни, мангали, будівельні суміші, натуральний камінь та професійна обробка каменю.",
+  ],
+  [
+    "Автоекспозиція Toyota",
+    "Кілька автомобілів Toyota на території виставки та консультації представників ТОЙОТА ЦЕНТР ХМЕЛЬНИЦЬКИЙ “ГРАНД МОТОР”.",
+  ],
+];
+
+const toyotaCards = [
+  [
+    "Автомобілі наживо",
+    "Кілька автомобілів Toyota на експозиції біля LDVIR.UA.",
+  ],
+  [
+    "Консультація представників",
+    "Можна буде поставити питання щодо моделей, комплектацій та умов придбання.",
+  ],
+  [
+    "Для бізнесу та щоденних задач",
+    "Автоекспозиція буде цікавою підприємцям, керівникам, майстрам, бригадам і всім, хто використовує авто в роботі.",
   ],
 ];
 
@@ -152,8 +178,8 @@ export default function Home() {
             </div>
           </div>
           <p className="hero-copy">
-            Інструмент, демонстрації, будівельні рішення, камінь, каміни та мангали — все на одній
-            локації біля LDVIR.UA.
+            Інструмент, демонстрації, будівельні рішення, камінь, каміни, мангали та
+            автоекспозиція Toyota — все на одній локації біля LDVIR.UA.
           </p>
           <div className="hero-facts" aria-label="Дата та адреса події">
             <span>15 липня 2026, середа</span>
@@ -202,14 +228,45 @@ export default function Home() {
             <h2>Також на виставці</h2>
             <p>
               Окрім інструменту, на події будуть представлені рішення для будівництва, ремонту,
-              каменю та зони відпочинку.
+              каменю, зони відпочинку та автоекспозиція Toyota.
             </p>
           </div>
           <div className="partner-grid">
-            {partners.map(([name, category]) => (
-              <article className="partner-card" key={name}>
-                <div className="partner-logo">{name}</div>
-                <p>{category}</p>
+            {partners.map((partner) => (
+              <article className="partner-card" key={partner.name}>
+                <div className="partner-logo">{partner.name}</div>
+                <p>{partner.category}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section toyota-section">
+        <div className="container toyota-layout">
+          <div className="toyota-panel">
+            <div className="toyota-logo-wrap">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/partners/toyota-grand-motor.png" alt={toyotaPartnerName} loading="lazy" />
+            </div>
+            <div className="toyota-copy">
+              <p className="eyebrow">Автоекспозиція</p>
+              <h2>Автомобілі Toyota на виставці</h2>
+              <p className="toyota-lead">
+                {toyotaPartnerName} представить кілька автомобілів Toyota на території події.
+              </p>
+              <p>
+                Гості виставки зможуть побачити автомобілі Toyota наживо, поспілкуватися з
+                представниками дилерського центру та дізнатися більше про актуальні моделі,
+                комплектації й можливості для бізнесу та особистого користування.
+              </p>
+            </div>
+          </div>
+          <div className="toyota-card-grid">
+            {toyotaCards.map(([title, text]) => (
+              <article className="toyota-card" key={title}>
+                <h3>{title}</h3>
+                <p>{text}</p>
               </article>
             ))}
           </div>
@@ -265,7 +322,7 @@ export default function Home() {
             <p className="audience-accent">
               Неважливо, ви працюєте самі, керуєте бригадою, маєте сервіс, фермерське господарство
               чи виробництво — на виставці можна буде побачити інструмент наживо, порівняти рішення
-              та поставити питання представникам брендів.
+              та поставити питання представникам брендів і партнерських експозицій.
             </p>
             <div className="audience-cta">
               <p>
@@ -317,8 +374,8 @@ export default function Home() {
             <p className="eyebrow">15 липня</p>
             <h2>15 липня зустрічаємось у LDVIR.UA</h2>
             <p>
-              Виставка інструментів у Хмельницькому. Тестуйте, порівнюйте та обирайте інструмент
-              під свою роботу.
+              Зареєструйтесь, щоб не пропустити демонстрації інструментів, партнерські експозиції
+              та автомобілі Toyota на території LDVIR.UA.
             </p>
           </div>
           <ActionButtons showForm variant="final" />
